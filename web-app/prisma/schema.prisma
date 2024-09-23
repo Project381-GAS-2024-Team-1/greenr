@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  firstName   String
+  lastName    String
+  email       String    @unique @map("email")
+  phone       String    @unique @map("phone")
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  history     UserHistory[]
+  systems     System[]
+  feedbacks   Feedback[]
+  followers   Follow[]  @relation("follower")
+  following   Follow[]  @relation("followed")
+  posts       Post[]
+  comments    Comment[]
+
+  @@map("users")
+}
+
+model UserHistory {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  status    String    @default("active")
+  metadata  Json?
+  timestamp DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_history")
+}
+
+model System {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  name         String
+  latitude     Float      
+  longitude    Float      
+  specifications Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history      SystemHistory[]
+  predictions  Prediction[]
+  devices      Device[]
+
+  @@map("systems")
+}
+
+model SystemHistory {
+  id        Int       @id @default(autoincrement())
+  systemId  Int
+  status    String    @default("operational") 
+  metadata  Json?
+  timestamp DateTime  @default(now())
+
+  system    System    @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@map("system_history")
+}
+
+model Prediction {
+  id        Int       @id @default(autoincrement())
+  systemId  Int
+  type      String    
+  input     Json
+  prediction Json
+  timestamp DateTime  @default(now())
+
+  system    System    @relation(fields: [systemId], references: [id], onDelete: Cascade)
+
+  @@map("predictions")
+}
+
+model Device {
+  id         Int       @id @default(autoincrement())
+  systemId   Int
+  name       String
+  ipV4       String?
+  ipV6       String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  system     System    @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  history    DeviceHistory[]
+
+  @@map("devices")
+}
+
+model DeviceHistory {
+  id        Int       @id @default(autoincrement())
+  deviceId  Int
+  status    String    @default("active") 
+  metadata  Json?
+  timestamp DateTime  @default(now())
+
+  device    Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("device_history")
+}
+
+model Feedback {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  type      String   
+  topic     String
+  content   String
+  version   String?
+  timestamp DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("feedback")
+}
+
+model Follow {
+  id               Int       @id @default(autoincrement())
+  followerUserId   Int
+  followsUserId    Int
+  status           String   
+  requestedAt      DateTime  @default(now())
+  acceptedAt       DateTime?
+
+  follower         User      @relation("follower", fields: [followerUserId], references: [id], onDelete: Cascade)
+  followed         User      @relation("followed", fields: [followsUserId], references: [id], onDelete: Cascade)
+
+  @@map("follow")
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String?
+  content     String
+  mediaPath   String?   @map("media_path") 
+  private     Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  replyTo   Int?
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [replyTo], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
