@@ -8,7 +8,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://greenradmin:greenradmin123@postgres:5432/greenr
+      - DATABASE_URL=postgresql://greenradmin:greenradmin123@postgres:5444/greenr
     depends_on:
       - postgres
     volumes:
@@ -21,7 +21,7 @@ services:
     image: postgres:13
     container_name: greenr-db
     ports:
-      - "5432:5432"
+      - "5444:5444"
     environment:
       POSTGRES_USER: greenradmin
       POSTGRES_PASSWORD: greenradmin123
