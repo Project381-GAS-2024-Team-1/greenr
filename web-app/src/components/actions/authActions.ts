@@ -23,7 +23,7 @@ export async function register(formData: FormData) {
       phone: formData.get("phone"),
       email: formData.get("email"),
       password: formData.get("password"),
-      confirmPassword: formData.get("confirmPassword"),
+      confirmPassword: formData.get("confirmPassword")
     });
 
     if (!parsedData.success) {
@@ -34,7 +34,7 @@ export async function register(formData: FormData) {
       parsedData.data;
 
     const existingUser = await db.user.findUnique({
-      where: { email },
+      where: { email }
     });
 
     if (existingUser) {
@@ -50,8 +50,8 @@ export async function register(formData: FormData) {
         lastName,
         phone,
         email,
-        password: hashedPassword,
-      },
+        password: hashedPassword
+      }
     });
 
     return { success: true, message: "User registered successfully" };
@@ -61,11 +61,11 @@ export async function register(formData: FormData) {
   }
 }
 
-export async function login(formData: FormData) {
+export async function logIn(formData: FormData) {
   try {
     const parsedData = loginSchema.safeParse({
       email: formData.get("email"),
-      password: formData.get("password"),
+      password: formData.get("password")
     });
 
     if (!parsedData.success) {
@@ -76,8 +76,8 @@ export async function login(formData: FormData) {
 
     const user = await db.user.findFirst({
       where: {
-        email: email,
-      },
+        email: email
+      }
     });
 
     if (!user) return { success: false, message: "Invalid email or password" };
@@ -91,7 +91,7 @@ export async function login(formData: FormData) {
     cookies().set("token", token, {
       httpOnly: true,
       sameSite: "strict",
-      secure: true,
+      secure: true
     });
     redirect("/dashboard");
     return { success: true, message: "Logged in successfully" };
