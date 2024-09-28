@@ -26,16 +26,16 @@
   :root {
     /* Colors */
     --brand-primary: 125 43% 51%;
-    --brand-primary-complement: 0 0% 12%;
+    --brand-primary-complement: 0 0% 98%;
 
     --brand-secondary: 139 53% 39%;
-    --brand-secondary-complement: 0 0% 12%;
+    --brand-secondary-complement: 0 0% 98%;
 
     --brand-tertiary: 139 52% 23%;
-    --brand-tertiary-complement: 0 0% 12%;
+    --brand-tertiary-complement: 0 0% 98%;
 
     --brand-accent: 46 90% 55%;
-    --brand-accent-complement: 0 0% 12%;
+    --brand-accent-complement: 0 0% 98%;
 
     --layer-primary: 0 0% 98%;
     --layer-secondary: 0 0% 96%;
