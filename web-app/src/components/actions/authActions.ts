@@ -84,7 +84,10 @@ export async function logIn(formData: FormData) {
     if (!isPasswordValid)
       return { success: false, message: "Invalid email or password" };
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET);
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      JWT_SECRET
+    );
 
     cookies().set("token", token, {
       httpOnly: true,
