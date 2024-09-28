@@ -6,7 +6,7 @@ import {
 } from "./utils/api/middleware/auth";
 
 export default function middleware(request: NextRequest) {
-  let response: NextResponse<unknown> | null | undefined = decodeToken(
+  let response: Promise<NextResponse<unknown> | null | undefined> = decodeToken(
     /.*/,
     strictlyUnauthorized(
       /^\/auth\/.*/,

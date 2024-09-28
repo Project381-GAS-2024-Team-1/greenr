@@ -1,6 +1,6 @@
 "use server";
 import { loginSchema, registerSchema } from "@/lib/schemas";
-import jwt from "jsonwebtoken";
+import { SignJWT } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { JWT_SECRET } from "@/lib/env";
@@ -79,21 +79,24 @@ export async function logIn(formData: FormData) {
     });
 
     if (!user) return { success: false, message: "Invalid email or password" };
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid)
+    if (!isPasswordValid) {
       return { success: false, message: "Invalid email or password" };
+    }
 
-    const token = jwt.sign(
-      { id: user.id, username: user.username },
-      JWT_SECRET
-    );
+    const token = await new SignJWT({ id: user.id, username: user.username })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .sign(new TextEncoder().encode(JWT_SECRET));
 
     cookies().set("token", token, {
       httpOnly: true,
       sameSite: "strict",
       secure: true
     });
+
     return {
       status: 200,
       success: true,
@@ -101,6 +104,7 @@ export async function logIn(formData: FormData) {
       redirectUrl: "/"
     };
   } catch (error) {
+    console.error("Login error:", error);
     return { success: false, message: "Something went wrong" };
   }
 }

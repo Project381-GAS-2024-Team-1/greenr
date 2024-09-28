@@ -14,4 +14,4 @@ export type MiddlewarePayload = {
 
 export type MiddlewareNext = (
   payload: MiddlewarePayload
-) => NextResponse<unknown> | null | undefined;
+) => Promise<NextResponse<unknown> | null | undefined>;
