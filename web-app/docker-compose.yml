@@ -8,20 +8,21 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://greenradmin:greenradmin123@postgres:5444/greenr
+      - DATABASE_URL=postgresql://greenradmin:greenradmin123@postgres:5432/greenr
     depends_on:
       - postgres
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run dev
+    command: >
+      sh -c "npx prisma migrate dev --name init && npm install && npm run dev"
     restart: always
 
   postgres:
     image: postgres:13
     container_name: greenr-db
     ports:
-      - "5444:5444"
+      - "5432:5432"
     environment:
       POSTGRES_USER: greenradmin
       POSTGRES_PASSWORD: greenradmin123
