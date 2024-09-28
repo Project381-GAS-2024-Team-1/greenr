@@ -23,12 +23,13 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 type RegisterFormInputs = {
   username: string;
   firstName: string;
   lastName: string;
-  phone?: string;
+  phone: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -36,11 +37,37 @@ type RegisterFormInputs = {
 
 export default function Register() {
   const form = useForm<RegisterFormInputs>({
-    resolver: zodResolver(registerSchema)
+    resolver: zodResolver(registerSchema),
+    mode: "onSubmit"
   });
 
-  const onSubmit = async (data: FormData) => {
-    await register(data);
+  const { toast } = useToast();
+
+  const onSubmit = async (data: RegisterFormInputs) => {
+    try {
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
+      formData.append("phone", data.phone);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("confirmPassword", data.confirmPassword);
+
+      const response = await register(formData);
+
+      toast({
+        title: response.success ? "Success" : "Error",
+        description: response.message,
+        variant: response.success ? "default" : "destructive"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Oops! Something went wrong.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -50,13 +77,13 @@ export default function Register() {
       </h1>
       <Card className="w-full">
         <Form {...form}>
-          <form action={onSubmit} className="w-full">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
             <CardHeader>
               <CardTitle className="text-2xl text-muted-foreground">
                 Sign Up
               </CardTitle>
               <CardDescription>
-                Welcome to <span>greenr</span> please enter your details to get
+                Welcome to <span>greenr</span>, please enter your details to get
                 started.
               </CardDescription>
             </CardHeader>
@@ -65,13 +92,17 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="username"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem className="md:col-span-2">
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your Username" {...field} />
+                        <Input
+                          placeholder="Your Username"
+                          {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
@@ -79,13 +110,17 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="firstName"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your First Name" {...field} />
+                        <Input
+                          placeholder="Your First Name"
+                          {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
@@ -93,13 +128,17 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="lastName"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your Last Name" {...field} />
+                        <Input
+                          placeholder="Your Last Name"
+                          {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
@@ -107,13 +146,17 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="phone"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your Phone Number" {...field} />
+                        <Input
+                          placeholder="Your Phone Number"
+                          {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
@@ -121,13 +164,17 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your Email" {...field} />
+                        <Input
+                          placeholder="Your Email"
+                          {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
@@ -135,7 +182,7 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="password"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
@@ -143,9 +190,10 @@ export default function Register() {
                           type="password"
                           placeholder="Your Password"
                           {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
@@ -153,7 +201,7 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="confirmPassword"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
@@ -161,9 +209,10 @@ export default function Register() {
                           type="password"
                           placeholder="Confirm Your Password"
                           {...field}
+                          className={fieldState.error ? "border-red-500" : ""}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage>{fieldState.error?.message}</FormMessage>
                     </FormItem>
                   )}
                 />

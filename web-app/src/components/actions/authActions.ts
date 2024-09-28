@@ -3,7 +3,6 @@ import { loginSchema, registerSchema } from "@/lib/schemas";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { JWT_SECRET } from "@/lib/env";
 import { db } from "@/lib/db";
 
@@ -27,7 +26,7 @@ export async function register(formData: FormData) {
     });
 
     if (!parsedData.success) {
-      return { success: false, errors: parsedData.error.errors };
+      return { success: false, errors: parsedData.error.flatten().fieldErrors };
     }
 
     const { username, firstName, lastName, phone, email, password } =
@@ -54,10 +53,9 @@ export async function register(formData: FormData) {
       }
     });
 
-    return { success: true, message: "User registered successfully" };
+    return { success: true, message: "User registered successfully!" };
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    return { success: false, message: "Something went wrong" };
+    return { success: false, message: "Something went wrong!" };
   }
 }
 
@@ -93,8 +91,12 @@ export async function logIn(formData: FormData) {
       sameSite: "strict",
       secure: true
     });
-    redirect("/dashboard");
-    return { success: true, message: "Logged in successfully" };
+    return {
+      status: 200,
+      success: true,
+      message: "Logged in successfully!",
+      redirectUrl: "/"
+    };
   } catch (error) {
     return { success: false, message: "Something went wrong" };
   }

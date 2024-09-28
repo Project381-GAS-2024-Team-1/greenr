@@ -23,6 +23,7 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 type LoginFormInputs = {
   email: string;
@@ -34,8 +35,30 @@ export default function Login() {
     resolver: zodResolver(loginSchema)
   });
 
-  const onSubmit = async (data: FormData) => {
-    await logIn(data);
+  const { toast } = useToast();
+
+  const onSubmit = async (data: LoginFormInputs) => {
+    try {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+
+      const response = await logIn(formData);
+
+      if (response.redirectUrl) window.location.href = response.redirectUrl;
+
+      toast({
+        title: response.success ? "Success" : "Error",
+        description: response.message,
+        variant: response.success ? "default" : "destructive"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Oops! Something went wrong.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -43,13 +66,13 @@ export default function Login() {
       <h1 className="col-span-2 text-4xl text-brand-tertiary">Welcome Back</h1>
       <Card className="w-full">
         <Form {...form}>
-          <form action={onSubmit} className="w-full">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
             <CardHeader>
               <CardTitle className="text-2xl text-muted-foreground">
                 Log In
               </CardTitle>
               <CardDescription>
-                Welcome back please enter your details.
+                Welcome back, please enter your details to continue.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -75,7 +98,11 @@ export default function Login() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your password" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Enter your password"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -86,10 +113,10 @@ export default function Login() {
             <CardFooter>
               <div className="flex flex-col gap-2">
                 <div>
-                  <Button type="submit">Register</Button>
+                  <Button type="submit">Log In</Button>
                 </div>
                 <div className="flex gap-1">
-                  <p>Don't have account?</p>
+                  <p>Don't have an account?</p>
                   <Link href="/auth/register" className="text-brand-tertiary">
                     Register
                   </Link>

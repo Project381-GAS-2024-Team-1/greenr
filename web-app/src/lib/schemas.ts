@@ -17,7 +17,7 @@ export const registerSchema = z
       .max(50, "Last name must be at most 50 characters long"),
     phone: z
       .string()
-      .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format"),
+      .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
     email: z.string().email("Invalid email format"),
     password: z
       .string()
@@ -31,14 +31,14 @@ export const registerSchema = z
       ),
     confirmPassword: z
       .string()
-      .min(8, "Confirm password must be at least 8 characters long"),
+      .min(8, "Confirm password must be at least 8 characters long")
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
-    path: ["confirmPassword"],
+    path: ["confirmPassword"]
   });
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
+  password: z.string().min(6, "Password must be at least 6 characters long")
 });
