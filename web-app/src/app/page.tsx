@@ -34,7 +34,7 @@ export default function Page() {
       <main className="grid grid-cols-3 flex-col gap-10">
         <div className="flex flex-col gap-5 col-span-2">
           <h1 className="text-6xl">Welcome</h1>
-          <p className="font-light text-xl">
+          <p className="font-light text-lg">
             Explore our innovative products, discover the benefits of solar
             energy, and join us in creating a brighter, sustainable future. Your
             journey to clean energy starts here!
