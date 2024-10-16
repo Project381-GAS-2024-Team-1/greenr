@@ -1,14 +1,46 @@
+"use client"; 
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, User, UserCircle } from "lucide-react";
+import { ArrowRight, UserCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import "./globals.css";
 
 export default function Page() {
+  const articleRefs = useRef<(HTMLDivElement | null)[]>([]); 
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add("article-visible");
+            }, index * 200); 
+            observer.unobserve(entry.target); 
+          }
+        });
+      },
+      { threshold: 0.1 } 
+    );
+
+    articleRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      articleRefs.current.forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
+  }, []);
+
   const tempArticles = [
     { image: "solar-future.png", title: "The Future of Solar Energy" },
     { image: "solar-myths.png", title: "Top 5 Myths about Solar Energy" },
-    { image: "solar-worth.png", title: "Is Solar Energy really worth it?" }
+    { image: "solar-worth.png", title: "Is Solar Energy really worth it?" },
   ];
+
   return (
     <div className="w-full max-w-[1080px] py-5 flex flex-col gap-20">
       <nav className="flex items-center justify-between w-full h-10">
@@ -40,7 +72,6 @@ export default function Page() {
             journey to clean energy starts here!
           </p>
         </div>
-        <div></div>
         <div className="relative col-span-2">
           <Image
             className="absolute -z-10 w-full h-full"
@@ -55,25 +86,15 @@ export default function Page() {
                 Creating a <span className="text-brand-accent">brighter</span>{" "}
                 future with solar-powered solutions
               </h3>
-              <p className="text-xl font-light text-brand-primary-complement ">
+              <p className="text-xl font-light text-brand-primary-complement">
                 Consider pure, renewable energy that enters your home directly
-                from the sun. An endless supply that is available for the
-                taking.
+                from the sun. An endless supply that is available for the taking.
               </p>
               <Link href={"/auth/register"} className="w-full">
                 <Button className="w-full bg-transparent border-primary-foreground border-[1px] text-primary-foreground shadow hover:bg-primary-foreground/10 rounded-none">
                   Join Now
                 </Button>
               </Link>
-            </div>
-            <div>
-              <Image
-                className="w-8"
-                src="/assets/logo.svg"
-                alt="solar"
-                width={806}
-                height={537}
-              />
             </div>
           </div>
         </div>
@@ -85,8 +106,14 @@ export default function Page() {
             </Link>
           </div>
           <div className="flex flex-col gap-10">
-            {tempArticles.map((article) => (
-              <div>
+            {tempArticles.map((article, index) => (
+              <div
+                key={article.title}
+                ref={(el) => {
+                  articleRefs.current[index] = el; 
+                }}
+                className="article-enter" 
+              >
                 <Image
                   className="w-full"
                   src={`/assets/cdn/${article.image}`}
@@ -105,6 +132,25 @@ export default function Page() {
           </div>
         </div>
       </main>
+      <footer className="w-full bg-gray-100 py-6 mt-10">
+        <div className="max-w-[1080px] mx-auto flex justify-between items-center">
+          <span className="text-sm text-gray-600">© 2024 Greenr. All rights reserved.</span>
+          <div className="flex gap-4">
+            <Link href="/privacy-policy" className="text-sm text-gray-600 hover:text-gray-800">
+              Privacy Policy
+            </Link>
+            <Link href="/terms-of-service" className="text-sm text-gray-600 hover:text-gray-800">
+              Terms of Service
+            </Link>
+            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+              <Image src="/assets/icons/facebookIcon.png" alt="Facebook" width={24} height={24} />
+            </Link>
+            <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+              <Image src="/assets/icons/twittericon.svg" alt="Twitter" width={24} height={24} />
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
