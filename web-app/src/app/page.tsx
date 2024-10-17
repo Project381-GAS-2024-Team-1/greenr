@@ -7,30 +7,36 @@ import Link from "next/link";
 import "./globals.css";
 
 export default function Page() {
-  const articleRefs = useRef<(HTMLDivElement | null)[]>([]); 
+  const newdivs = useRef<(HTMLDivElement | null)[]>([]);
+  const dynamicdiv = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const divtracker = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry, index) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              entry.target.classList.add("article-visible");
-            }, index * 200); 
-            observer.unobserve(entry.target); 
+        entries.forEach((popitem) => {
+          if (popitem.isIntersecting) {
+            popitem.target.classList.add("slidetovisible");
+            divtracker.unobserve(popitem.target);
           }
         });
       },
-      { threshold: 0.1 } 
+      { threshold: 0.1 }
     );
-
-    articleRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
+  
+    if (dynamicdiv.current) {
+      divtracker.observe(dynamicdiv.current);
+    }
+  
+    newdivs.current.forEach((difref) => {
+      if (difref) divtracker.observe(difref);
     });
 
     return () => {
-      articleRefs.current.forEach((ref) => {
-        if (ref) observer.unobserve(ref);
+      if (dynamicdiv.current) {
+        divtracker.unobserve(dynamicdiv.current);
+      }
+      newdivs.current.forEach((difref) => {
+        if (difref) divtracker.unobserve(difref);
       });
     };
   }, []);
@@ -81,7 +87,10 @@ export default function Page() {
             height={537}
           />
           <div className="p-5 flex justify-between h-full">
-            <div className="max-w-96 bg-foreground/50 backdrop-blur-sm p-10 flex flex-col h-full justify-between rounded-sm">
+            <div
+              ref={dynamicdiv}
+              className="max-w-96 bg-foreground/50 backdrop-blur-sm p-10 flex flex-col h-full justify-between rounded-sm slidefromright"
+            >
               <h3 className="text-3xl text-brand-primary-complement font-bold">
                 Creating a <span className="text-brand-accent">brighter</span>{" "}
                 future with solar-powered solutions
@@ -110,9 +119,9 @@ export default function Page() {
               <div
                 key={article.title}
                 ref={(el) => {
-                  articleRefs.current[index] = el; 
+                  newdivs.current[index] = el;
                 }}
-                className="article-enter" 
+                className="articlefrombottom"
               >
                 <Image
                   className="w-full"
